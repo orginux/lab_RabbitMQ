@@ -1,0 +1,9 @@
+---
+- name: install RabbitMQ
+  hosts: rabbit_hosts
+  become: true
+
+  roles:
+    - local_dns_rabbitmq
+    - rabbitmq_role
+    - create_cluster_rabbitmq

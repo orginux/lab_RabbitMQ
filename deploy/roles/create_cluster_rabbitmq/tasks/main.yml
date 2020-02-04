@@ -1,0 +1,31 @@
+---
+- name: Get cookie
+  slurp:
+    src: /var/lib/rabbitmq/.erlang.cookie
+  delegate_to: "{{ rabbitmq_master }}"
+  run_once: true
+  register: cookie
+
+- name: block
+  block:
+    - name: Add cooke
+      copy:
+        dest: /var/lib/rabbitmq/.erlang.cookie
+        content: "{{ cookie['content'] | b64decode }}"
+        force: true
+
+    - name: restart rabbitmq
+      systemd:
+        name: rabbitmq-server.service
+        state: restarted
+        daemon_reload: true
+
+    - name: Stop RabbitMQ app
+      command: rabbitmqctl stop_app
+
+    - name: Join node
+      command: "rabbitmqctl join_cluster --disc rabbit@{{ rabbitmq_master }}"
+
+    - name: Start node
+      command: rabbitmqctl start_app
+  when: inventory_hostname != rabbitmq_master

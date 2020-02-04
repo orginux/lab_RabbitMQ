@@ -1,0 +1,32 @@
+---
+- name: Add Repository Signing Key
+  apt_key:
+    url: "{{ rabbitmq_key_url }}"
+    state: present
+
+- name: Install dependencies
+  apt:
+    name: "{{ rabbitmq_prerequisites }}"
+    update_cache: false
+    force_apt_get: true
+
+- name: Add repo RabbitMQ
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    filename: bintray.rabbitmq.list
+  with_items:
+    - "{{ rabbitmq_repo }}"
+    - "{{ rabbitmq_repo_erlang }}"
+
+- name: Install RabbitMQ
+  apt:
+    name: rabbitmq-server
+    update_cache: true
+    force_apt_get: true
+
+- name: Start service RabbitMQ
+  systemd:
+    name: rabbitmq-server.service
+    state: started
+    enabled: true

@@ -1,0 +1,21 @@
+---
+- name: Set list hosts
+  set_fact:
+    hosts:
+      - "192.168.0.171 rabbit_1"
+      - "192.168.0.141 rabbit_2"
+      - "192.168.0.168 rabbit_3"
+
+- name: Ping to servers
+  ping:
+
+- name: Add ip addresses in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ item }}"
+  with_items: "{{ hosts }}"
+
+- name: Chech add hosts
+  command: "ping -c 1 {{ item.split(' ')[1] }}"
+  with_items: "{{ hosts }}"
+  changed_when: false

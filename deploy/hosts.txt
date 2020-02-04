@@ -1,0 +1,4 @@
+[rabbit_hosts]
+rabbit_1
+rabbit_2
+rabbit_3
